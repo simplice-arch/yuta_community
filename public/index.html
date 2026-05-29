@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YUTA BLOX COMMUNITY — Stock Tracker</title>
+  <meta name="description" content="Tracker de stock live Blox Fruits — Normal & Mirage Dealer. Communauté YUTA BLOX." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="bg-fx"></div>
+<div class="scan"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo-icon">YB</div>
+      <div class="logo-text">
+        <span class="logo-main">YUTA BLOX</span>
+        <span class="logo-sub">Community Tracker</span>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+  </header>
+
+  <!-- TIMER -->
+  <div class="timer-section">
+    <div>
+      <div class="timer-label">⏱ Prochain Restock dans</div>
+      <div class="timer-digits">
+        <div class="digit-block">
+          <div class="digit-num" id="t-h">00</div>
+          <div class="digit-unit">Heures</div>
+        </div>
+        <div class="timer-sep">:</div>
+        <div class="digit-block">
+          <div class="digit-num" id="t-m">00</div>
+          <div class="digit-unit">Minutes</div>
+        </div>
+        <div class="timer-sep">:</div>
+        <div class="digit-block">
+          <div class="digit-num" id="t-s">00</div>
+          <div class="digit-unit">Secondes</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div class="next-restock-label">Prochain restock</div>
+      <div class="next-restock-time" id="next-time">--:-- UTC</div>
+      <div class="restock-note">Normal: toutes les 4h · Mirage: toutes les 2h (UTC)</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tab-normal" onclick="switchTab('normal')">Stock Normal</div>
+    <div class="tab" id="tab-mirage" onclick="switchTab('mirage')">Stock Mirage</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-val red" id="s-instock">—</div>
+      <div class="stat-lbl">En Stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="s-total">—</div>
+      <div class="stat-lbl">Total Fruits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val gold" id="s-expensive">—</div>
+      <div class="stat-lbl">+ Cher (Beli)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val green" id="s-source">LIVE</div>
+      <div class="stat-lbl">Source</div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions-row">
+    <button class="btn-refresh" id="btn-refresh" onclick="loadStock(true)">
+      <i class="fa-solid fa-rotate-right"></i> Actualiser
+    </button>
+    <span class="last-updated" id="last-updated">Chargement...</span>
+    <span class="source-tag">
+      via <a href="https://rbxplanet.com/game/blox-fruits/stock" target="_blank" rel="noopener">RBX Planet</a>
+    </span>
+  </div>
+
+  <div id="error-msg" class="error-msg" style="display:none;"></div>
+
+  <!-- STOCK GRID -->
+  <div id="stock-container">
+    <div class="loading-overlay">
+      <div class="spinner-ring"></div>
+      <div class="loading-text">Récupération du stock live...</div>
+    </div>
+  </div>
+
+  <!-- AI PANEL -->
+  <div class="ai-panel">
+    <div class="ai-header">
+      <div class="ai-icon">🤖</div>
+      <div>
+        <div class="ai-title">Assistant IA Blox Fruits</div>
+        <div class="ai-sub">Posez vos questions sur les fruits, stratégies, prix...</div>
+      </div>
+    </div>
+    <div class="ai-body">
+      <div class="ai-row">
+        <input class="ai-input" id="ai-input" type="text"
+          placeholder="Ex: Lequel des fruits en stock vaut le plus le coup ?" />
+        <button class="btn-ask" id="btn-ask" onclick="askAI()">Demander</button>
+      </div>
+      <div class="ai-resp" id="ai-resp">
+        <span class="ai-thinking">Pose-moi une question sur le stock actuel ou sur Blox Fruits...</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-logo">YUTA BLOX COMMUNITY</span>
+    <span class="footer-note">Fan site non officiel — Non affilié à Roblox ou Gamer Robot Inc.</span>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
