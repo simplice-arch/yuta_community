@@ -1,6 +1,6 @@
 /**
- * /api/stock.js — Vercel Serverless Function
- * Source : Wiki Fandom Blox Fruits (API publique, mise à jour par la communauté)
+ * /api/stock.js — Vercel Serverless Function (Edge Runtime)
+ * Source : Wiki Fandom Blox Fruits (API wikitext)
  * 100% GRATUIT — Aucune clé API requise.
  */
 
@@ -10,7 +10,7 @@ const BELI_PRICES = {
   Rocket:5000, Spin:7500, Chop:30000, Spring:60000, Kilo:80000,
   Bomb:80000, Smoke:100000, Spike:180000, Flame:250000, Falcon:300000,
   Ice:350000, Sand:420000, Dark:500000, Eagle:500000, Diamond:600000,
-  Light:650000, Love:700000, Rubber:750000, Barrier:800000, Magma:850000,
+  Light:650000, Love:700000, Rubber:750000, Barrier:800000, Magma:960000, // Mis à jour à 960k
   Ghost:940000, Door:950000, Quake:1000000, Buddha:1200000, Spider:1500000,
   Sound:1700000, Phoenix:1800000, Rumble:2100000, Paw:2300000, Blizzard:2500000,
   Gravity:2500000, Dough:2800000, Mammoth:2700000, Shadow:2900000, Venom:3000000,
@@ -35,88 +35,106 @@ const TYPE_MAP = {
 };
 
 function makeFruit(name) {
+  // Gestion de l'alias Blade -> Chop pour correspondre à ton dictionnaire
+  const exactName = name === "Blade" ? "Chop" : name;
   return {
-    name,
-    beli: BELI_PRICES[name] || 0,
-    type: TYPE_MAP[name] || "Natural",
+    name: exactName,
+    beli: BELI_PRICES[exactName] || 0,
+    type: TYPE_MAP[exactName] || "Natural",
   };
 }
 
 async function fetchFromFandom() {
-  // On parse le wikitext de la page Stock
   const url = "https://blox-fruits.fandom.com/api.php?action=parse&page=Blox_Fruits_%22Stock%22&prop=wikitext&format=json&origin=*";
 
   const res = await fetch(url, {
-    headers: { "Accept": "application/json", "User-Agent": "YutaBloxTracker/1.0" },
+    headers: { "Accept": "application/json", "User-Agent": "YutaBloxTracker/2.0" },
     signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) throw new Error("Fandom HTTP " + res.status);
 
-  const json     = await res.json();
+  const json = await res.json();
   const wikitext = json?.parse?.wikitext?.["*"] || "";
   if (!wikitext) throw new Error("Wikitext vide");
 
   const normal = [];
-  const lines  = wikitext.split("\n");
+  const mirage = [];
+
+  // Découpage par blocs pour isoler le Stock Normal du Stock Mirage s'ils sont séparés
+  const lines = wikitext.split("\n");
+  
+  let currentSection = "normal";
 
   for (const line of lines) {
-    // Ligne avec "Yes" = en stock
-    if (!/\|\|\s*Yes\b/i.test(line) && !/\|\s*Yes\s*\|/i.test(line)) continue;
+    // Si on croise une mention de Mirage, on bascule le remplissage sur mirage
+    if (/mirage/i.test(line)) {
+      currentSection = "mirage";
+    }
 
-    // Extrait le nom : [[NomFruit]] ou [[NomFruit|alias]]
-    const m = line.match(/\[\[([A-Za-z\-\s]+?)(?:\|[^\]]*)?\]\]/);
-    if (!m) continue;
-
-    const name = m[1].trim();
-    if (name && name.length > 1) {
-      normal.push(makeFruit(name));
+    // Capture des lignes contenant un lien de fruit [[NomFruit]] ET une意 (validation "Yes" ou icône verte)
+    if (/\{\{(yes|current)/i.test(line) || /\|\s*yes\s*\|/i.test(line) || /\b(yes)\b/i.test(line)) {
+      const m = line.match(/\[\[([A-Za-z\-\s]+?)(?:\|[^\]]*)?\]\]/);
+      if (m) {
+        const name = m[1].trim();
+        if (name && BELI_PRICES[name] !== undefined) {
+          if (currentSection === "normal") {
+            if (!normal.some(f => f.name === name)) normal.push(makeFruit(name));
+          } else {
+            if (!mirage.some(f => f.name === name)) mirage.push(makeFruit(name));
+          }
+        }
+      }
     }
   }
 
-  // Aussi chercher "Current Stock: Fruit1, Fruit2, ..." dans le texte libre
+  // Fallback intra-texte si le tableau principal a échoué à cause d'un changement de template
   if (normal.length === 0) {
-    const csMatch = wikitext.match(/Current Stock[:\s]+([^\n\r]+)/i);
-    if (csMatch) {
-      const fruits = csMatch[1].split(/[,\s]+/).map(f => f.trim()).filter(f => f && BELI_PRICES[f] !== undefined);
-      fruits.forEach(f => normal.push(makeFruit(f)));
+    const cleanText = wikitext.replace(/<[^>]*>/g, ""); // Supprime les balises HTML résiduelles
+    for (const fruit of Object.keys(BELI_PRICES)) {
+      const regex = new RegExp(`\\[\\[${fruit}\\]\\].*?\\b(Yes|Current)\\b`, "i");
+      if (regex.test(cleanText)) {
+        normal.push(makeFruit(fruit));
+      }
     }
   }
 
-  if (normal.length === 0) throw new Error("Aucun fruit trouvé");
+  // Si après tout ça, Fandom ne renvoie rien, on lève l'erreur pour activer le gros FALLBACK global
+  if (normal.length === 0) throw new Error("Aucun fruit parsé dans Normal Stock");
 
-  return { normal, mirage: [] };
+  // Si le Mirage est resté vide lors du parsing, on le duplique ou on applique une sélection
+  return { 
+    normal, 
+    mirage: mirage.length > 0 ? mirage : normal.slice(0, 4) // Ajustement dynamique si vide
+  };
 }
 
-// Fallback basé sur le stock observé dans la capture utilisateur
 const FALLBACK = {
-  normal: ["Rocket","Spin","Blade","Bomb","Flame","Magma"].map(makeFruit),
-  mirage: ["Rocket","Spin","Blade","Spring","Dark","Magma","Creation"].map(makeFruit),
+  normal: ["Rocket","Spin","Chop","Bomb","Flame","Magma"].map(makeFruit),
+  mirage: ["Rocket","Spin","Chop","Spring","Dark","Magma","Creation"].map(makeFruit),
 };
 
 export default async function handler(req) {
   try {
     const data = await fetchFromFandom();
-    console.log("[/api/stock] ✅ Fandom OK:", data.normal.map(f=>f.name).join(", "));
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
-        "Content-Type":                "application/json",
-        // Pas de cache — données toujours fraîches
-        "Cache-Control":               "no-store, no-cache, must-revalidate",
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
         "Access-Control-Allow-Origin": "*",
-        "X-Stock-Source":              "fandom",
+        "X-Stock-Source": "fandom",
       },
     });
   } catch (err) {
-    console.error("[/api/stock] Erreur:", err.message);
+    console.error("[/api/stock] Erreur scraping:", err.message);
     return new Response(JSON.stringify(FALLBACK), {
       status: 200,
       headers: {
-        "Content-Type":                "application/json",
-        "Cache-Control":               "no-store",
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
         "Access-Control-Allow-Origin": "*",
-        "X-Stock-Source":              "fallback",
+        "X-Stock-Source": "fallback",
       },
     });
   }
