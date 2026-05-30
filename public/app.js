@@ -61,16 +61,19 @@ const FALLBACK_STOCK = {
   normal: [
     { name: "Rocket", beli: 5000,    type: "Natural"   },
     { name: "Spin",   beli: 7500,    type: "Natural"   },
-    { name: "Smoke",  beli: 100000,  type: "Elemental" },
-    { name: "Spike",  beli: 180000,  type: "Natural"   },
-    { name: "Sand",   beli: 420000,  type: "Elemental" },
+    { name: "Chop",   beli: 30000,   type: "Natural"   },
+    { name: "Bomb",   beli: 80000,   type: "Natural"   },
+    { name: "Flame",  beli: 250000,  type: "Elemental" },
+    { name: "Magma",  beli: 960000,  type: "Elemental" },
   ],
   mirage: [
     { name: "Rocket", beli: 5000,    type: "Natural"   },
-    { name: "Flame",  beli: 250000,  type: "Elemental" },
+    { name: "Spin",   beli: 7500,    type: "Natural"   },
+    { name: "Chop",   beli: 30000,   type: "Natural"   },
+    { name: "Spring", beli: 60000,   type: "Natural"   },
     { name: "Dark",   beli: 500000,  type: "Elemental" },
-    { name: "Dough",  beli: 2800000, type: "Natural"   },
-    { name: "Venom",  beli: 3000000, type: "Natural"   },
+    { name: "Magma",  beli: 960000,  type: "Elemental" },
+    { name: "Creation", beli: 1400000, type: "Natural" },
   ],
 };
 
@@ -82,8 +85,8 @@ const CACHE_TTL   = 5 * 60 * 1000;
 /* ─── UTILS ─── */
 function fmtPrice(p) {
   if (!p || p === 0) return "?";
-  if (p >= 1_000_000) return (p / 1_000_000).toFixed(1) + "M Beli";
-  if (p >= 1_000)     return Math.round(p / 1_000) + "K Beli";
+  if (p >= 1_000_000) return (p / 1_000_000).toFixed(1).replace('.0', '') + "M Beli";
+  if (p >= 1_000)     return (p / 1_000).toFixed(p % 1000 === 0 ? 0 : 1) + "K Beli"; // Correction ici : affiche bien 7.5K
   return p + " Beli";
 }
 
@@ -92,21 +95,33 @@ function rarityClass(r) {
            rare:"r-rare", uncommon:"r-uncommon", common:"r-common" }[r] || "r-common";
 }
 
+function normalizeFruitName(name) {
+  if (!name) return "";
+  // Harmonise le nom de "Blade" vers "Chop" pour assurer la correspondance avec FRUIT_META
+  let n = name.trim();
+  if (n.toLowerCase() === "blade") return "Chop";
+  
+  // Remet la première lettre en majuscule au cas où (ex: "magma" -> "Magma")
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
+
 function getFruitImg(name) {
-  const meta = FRUIT_META[name];
+  const exactName = normalizeFruitName(name);
+  const meta = FRUIT_META[exactName];
   if (meta) return meta.img;
-  // Essaie une URL générique si le fruit n'est pas dans la table
-  return `${WIKI}/${name}_Fruit_Icon.png`;
+  return `${WIKI}/${exactName}_Fruit_Icon.png`;
 }
 
 function getFruitRarity(name) {
-  return FRUIT_META[name]?.rarity || "common";
+  const exactName = normalizeFruitName(name);
+  return FRUIT_META[exactName]?.rarity || "common";
 }
 
 /* ─── CARD BUILDER avec vraie image ─── */
 function buildCard(fruit) {
-  const rarity = getFruitRarity(fruit.name);
-  const imgUrl = getFruitImg(fruit.name);
+  const exactName = normalizeFruitName(fruit.name);
+  const rarity = getFruitRarity(exactName);
+  const imgUrl = getFruitImg(exactName);
 
   return `
   <div class="fruit-card in-stock">
@@ -115,13 +130,13 @@ function buildCard(fruit) {
       <img
         class="fruit-img"
         src="${imgUrl}"
-        alt="${fruit.name}"
+        alt="${exactName}"
         loading="lazy"
         onerror="this.style.display='none';this.nextElementSibling.style.display='block'"
       />
       <span class="fruit-emoji-fallback" style="display:none">${EMOJI_FALLBACK[rarity] || "🍑"}</span>
     </div>
-    <div class="fruit-name">${fruit.name}</div>
+    <div class="fruit-name">${exactName}</div>
     <span class="rarity-badge ${rarityClass(rarity)}">${rarity}</span>
     <div class="type-tag">${fruit.type || ""}</div>
     <div class="fruit-price">🪙 ${fmtPrice(fruit.beli)}</div>
@@ -161,20 +176,23 @@ function renderStock() {
 /* ─── LOAD STOCK ─── */
 async function loadStock(force = false) {
   const btn = document.getElementById("btn-refresh");
-  btn.classList.add("spinning");
+  if (btn) btn.classList.add("spinning");
   document.getElementById("error-msg").style.display = "none";
 
   if (!force && lastFetchedAt && Date.now() - lastFetchedAt < CACHE_TTL) {
     renderStock();
-    btn.classList.remove("spinning");
+    if (btn) btn.classList.remove("spinning");
     return;
   }
 
-  document.getElementById("stock-container").innerHTML = `
-    <div class="loading-overlay">
-      <div class="spinner-ring"></div>
-      <div class="loading-text">Récupération du stock live...</div>
-    </div>`;
+  const container = document.getElementById("stock-container");
+  if (container) {
+    container.innerHTML = `
+      <div class="loading-overlay">
+        <div class="spinner-ring"></div>
+        <div class="loading-text">Récupération du stock live...</div>
+      </div>`;
+  }
 
   try {
     const res  = await fetch("/api/stock");
@@ -204,7 +222,7 @@ async function loadStock(force = false) {
     renderStock();
   }
 
-  btn.classList.remove("spinning");
+  if (btn) btn.classList.remove("spinning");
 }
 
 /* ─── TABS ─── */
@@ -270,14 +288,19 @@ async function askAI() {
 
 function showError(msg) {
   const el = document.getElementById("error-msg");
-  el.style.display = "block";
-  el.textContent   = msg;
+  if (el) {
+    el.style.display = "block";
+    el.textContent   = msg;
+  }
 }
 
 /* ─── INIT ─── */
-document.getElementById("ai-input").addEventListener("keydown", e => {
-  if (e.key === "Enter") askAI();
-});
+const aiInput = document.getElementById("ai-input");
+if (aiInput) {
+  aiInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") askAI();
+  });
+}
 
 setInterval(updateTimer, 1000);
 updateTimer();
