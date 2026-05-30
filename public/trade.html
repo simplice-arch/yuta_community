@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de Trade — YUTA BLOX COMMUNITY</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .trade-layout {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    .trade-side {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .trade-side.you   { border-color: rgba(232,0,29,.3); }
+    .trade-side.them  { border-color: rgba(0,212,255,.2); }
+
+    .trade-side-header {
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border-card);
+    }
+    .trade-side.you  .trade-side-header { background: rgba(232,0,29,.06); }
+    .trade-side.them .trade-side-header { background: rgba(0,212,255,.04); }
+
+    .trade-side-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+    }
+    .trade-side.you  .trade-side-title { color: var(--red); }
+    .trade-side.them .trade-side-title { color: var(--cyan); }
+
+    .trade-side-total {
+      margin-left: auto;
+      font-family: 'Orbitron', monospace;
+      font-size: 13px; font-weight: 700;
+      color: var(--gold);
+    }
+
+    .trade-side-body { padding: 16px; }
+
+    /* Fruit selector */
+    .fruit-selector {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .fruit-select {
+      flex: 1;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px; font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .fruit-select:focus { border-color: rgba(232,0,29,.4); }
+    .fruit-select option { background: #111118; }
+
+    .btn-add-fruit {
+      background: var(--red);
+      border: none; border-radius: 8px;
+      padding: 9px 14px; color: #fff;
+      cursor: pointer; font-size: 16px;
+      transition: background .2s, transform .1s;
+    }
+    .btn-add-fruit:hover   { background: #c4001a; }
+    .btn-add-fruit:active  { transform: scale(.95); }
+
+    /* Fruits ajoutés */
+    .added-fruits { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+
+    .added-fruit-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-card);
+      border-radius: 10px; padding: 8px 12px;
+      animation: fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+
+    .added-fruit-img {
+      width: 36px; height: 36px; object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
+    }
+    .added-fruit-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px; letter-spacing: 1px; flex: 1;
+    }
+    .added-fruit-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px; color: var(--gold); font-weight: 700;
+    }
+    .btn-remove {
+      background: rgba(232,0,29,.12);
+      border: 1px solid rgba(232,0,29,.2);
+      border-radius: 6px; padding: 4px 8px;
+      color: var(--red); cursor: pointer; font-size: 12px;
+      transition: background .2s;
+    }
+    .btn-remove:hover { background: rgba(232,0,29,.25); }
+
+    .empty-hint {
+      color: var(--dim); font-size: 13px;
+      text-align: center; padding: 16px 0; font-style: italic;
+    }
+
+    /* VS separator */
+    .vs-col {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding-top: 60px; gap: 12px;
+    }
+    .vs-badge {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 3px;
+      color: var(--muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 50%; width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Résultat */
+    .result-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      text-align: center;
+      position: relative; overflow: hidden;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .result-panel.win  { border-color: #22c55e; box-shadow: 0 0 30px rgba(34,197,94,.12); }
+    .result-panel.lose { border-color: var(--red); box-shadow: 0 0 30px rgba(232,0,29,.12); }
+    .result-panel.even { border-color: var(--gold); box-shadow: 0 0 30px rgba(245,166,35,.1); }
+    .result-panel.empty { border-color: var(--border-card); }
+
+    .result-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .result-panel.win::before  { background: linear-gradient(90deg,transparent,#22c55e,transparent); }
+    .result-panel.lose::before { background: linear-gradient(90deg,transparent,var(--red),transparent); }
+    .result-panel.even::before { background: linear-gradient(90deg,transparent,var(--gold),transparent); }
+
+    .result-emoji { font-size: 48px; margin-bottom: 8px; }
+    .result-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: 4px; margin-bottom: 6px;
+    }
+    .result-label.win  { color: #22c55e; }
+    .result-label.lose { color: var(--red); }
+    .result-label.even { color: var(--gold); }
+    .result-label.empty { color: var(--muted); }
+
+    .result-detail {
+      font-size: 14px; color: var(--muted); margin-bottom: 16px;
+    }
+
+    .result-breakdown {
+      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+    }
+    .breakdown-item { text-align: center; }
+    .breakdown-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px; font-weight: 700; color: var(--text);
+    }
+    .breakdown-lbl { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+
+    .result-tip {
+      margin-top: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border-card);
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 13px; color: var(--text); line-height: 1.6;
+    }
+
+    /* Btn reset */
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 10px; padding: 10px 22px;
+      color: var(--muted); cursor: pointer;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px; letter-spacing: 2px;
+      transition: all .2s;
+    }
+    .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+    /* Nav */
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 13px; letter-spacing: 2px;
+      text-decoration: none; text-transform: uppercase;
+      font-weight: 600; margin-bottom: 20px;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--red); }
+
+    @media (max-width: 700px) {
+      .trade-layout { grid-template-columns: 1fr; }
+      .vs-col { padding-top: 0; flex-direction: row; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="scan"></div>
+
+<div class="wrap">
+
+  <header>
+    <div class="logo-block">
+      <img src="/logo.jpg" alt="YUTA BLOX" class="logo-img" />
+      <div class="logo-text">
+        <span class="logo-main">YUTA BLOX</span>
+        <span class="logo-sub">Community Tracker</span>
+      </div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+  </header>
+
+  <!-- nav only on trade page --><i class="fa-solid fa-arrow-left"></i> Retour au stock</a>
+
+  <div class="section-header" style="margin-bottom:24px;">
+    <span class="section-title" style="color:var(--red)">Calculateur de Trade</span>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- RÉSULTAT -->
+  <div class="result-panel empty" id="result-panel">
+    <div class="result-emoji" id="result-emoji">⚖️</div>
+    <div class="result-label empty" id="result-label">Ajoute des fruits pour analyser</div>
+    <div class="result-detail" id="result-detail">Sélectionne ce que tu donnes et ce que tu reçois</div>
+    <div class="result-breakdown" id="result-breakdown" style="display:none">
+      <div class="breakdown-item">
+        <div class="breakdown-val" id="bd-you">—</div>
+        <div class="breakdown-lbl">Ta valeur</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-val" id="bd-diff">—</div>
+        <div class="breakdown-lbl">Différence</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-val" id="bd-them">—</div>
+        <div class="breakdown-lbl">Leur valeur</div>
+      </div>
+    </div>
+    <div class="result-tip" id="result-tip" style="display:none"></div>
+  </div>
+
+  <!-- TRADE LAYOUT -->
+  <div class="trade-layout">
+
+    <!-- TOI -->
+    <div class="trade-side you">
+      <div class="trade-side-header">
+        <span class="trade-side-title">Tu donnes</span>
+        <span class="trade-side-total" id="total-you">0 Beli</span>
+      </div>
+      <div class="trade-side-body">
+        <div class="fruit-selector">
+          <select class="fruit-select" id="select-you">
+            <option value="">— Choisir un fruit —</option>
+          </select>
+          <button class="btn-add-fruit" onclick="addFruit('you')">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+        <div class="added-fruits" id="fruits-you">
+          <div class="empty-hint">Aucun fruit ajouté</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VS -->
+    <div class="vs-col">
+      <div class="vs-badge">VS</div>
+      <button class="btn-reset" onclick="resetAll()">
+        <i class="fa-solid fa-rotate-left"></i> Reset
+      </button>
+    </div>
+
+    <!-- EUX -->
+    <div class="trade-side them">
+      <div class="trade-side-header">
+        <span class="trade-side-title" style="color:var(--cyan)">Tu reçois</span>
+        <span class="trade-side-total" id="total-them">0 Beli</span>
+      </div>
+      <div class="trade-side-body">
+        <div class="fruit-selector">
+          <select class="fruit-select" id="select-them">
+            <option value="">— Choisir un fruit —</option>
+          </select>
+          <button class="btn-add-fruit" onclick="addFruit('them')" style="background:rgba(0,212,255,.2);border:1px solid rgba(0,212,255,.3);color:var(--cyan);">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+        <div class="added-fruits" id="fruits-them">
+          <div class="empty-hint">Aucun fruit ajouté</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      <img src="/logo.jpg" alt="logo" class="footer-logo-img" />
+      <span class="footer-logo">YUTA BLOX COMMUNITY</span>
+    </div>
+    <span class="footer-note">Fan site non officiel — Non affilié à Roblox ou Gamer Robot Inc.</span>
+  </footer>
+
+</div>
+
+<script>
+const FRUITS = [
+  { name:"Rocket",   beli:5000,    rarity:"common"   },
+  { name:"Spin",     beli:7500,    rarity:"common"   },
+  { name:"Chop",     beli:30000,   rarity:"common"   },
+  { name:"Blade",    beli:30000,   rarity:"uncommon" },
+  { name:"Spring",   beli:60000,   rarity:"common"   },
+  { name:"Bomb",     beli:80000,   rarity:"uncommon" },
+  { name:"Smoke",    beli:100000,  rarity:"uncommon" },
+  { name:"Spike",    beli:180000,  rarity:"uncommon" },
+  { name:"Flame",    beli:250000,  rarity:"rare"     },
+  { name:"Falcon",   beli:300000,  rarity:"rare"     },
+  { name:"Ice",      beli:350000,  rarity:"rare"     },
+  { name:"Sand",     beli:420000,  rarity:"rare"     },
+  { name:"Dark",     beli:500000,  rarity:"rare"     },
+  { name:"Eagle",    beli:500000,  rarity:"rare"     },
+  { name:"Diamond",  beli:600000,  rarity:"rare"     },
+  { name:"Light",    beli:650000,  rarity:"legendary"},
+  { name:"Love",     beli:700000,  rarity:"rare"     },
+  { name:"Rubber",   beli:750000,  rarity:"rare"     },
+  { name:"Barrier",  beli:800000,  rarity:"rare"     },
+  { name:"Magma",    beli:850000,  rarity:"legendary"},
+  { name:"Ghost",    beli:940000,  rarity:"legendary"},
+  { name:"Quake",    beli:1000000, rarity:"legendary"},
+  { name:"Buddha",   beli:1200000, rarity:"legendary"},
+  { name:"Portal",   beli:1400000, rarity:"legendary"},
+  { name:"Creation", beli:1400000, rarity:"legendary"},
+  { name:"Spider",   beli:1500000, rarity:"legendary"},
+  { name:"Sound",    beli:1700000, rarity:"legendary"},
+  { name:"Phoenix",  beli:1800000, rarity:"mythical" },
+  { name:"Rumble",   beli:2100000, rarity:"mythical" },
+  { name:"Lightning",beli:2100000, rarity:"mythical" },
+  { name:"Tiger",    beli:2000000, rarity:"mythical" },
+  { name:"Yeti",     beli:2100000, rarity:"mythical" },
+  { name:"Paw",      beli:2300000, rarity:"mythical" },
+  { name:"Pain",     beli:2400000, rarity:"mythical" },
+  { name:"Blizzard", beli:2500000, rarity:"mythical" },
+  { name:"Gravity",  beli:2500000, rarity:"mythical" },
+  { name:"Mammoth",  beli:2700000, rarity:"mythical" },
+  { name:"Dough",    beli:2800000, rarity:"mythical" },
+  { name:"Shadow",   beli:2900000, rarity:"legendary"},
+  { name:"Venom",    beli:3000000, rarity:"mythical" },
+  { name:"Gas",      beli:3000000, rarity:"mythical" },
+  { name:"Control",  beli:3200000, rarity:"mythical" },
+  { name:"Dragon",   beli:3500000, rarity:"mythical" },
+  { name:"Spirit",   beli:3500000, rarity:"mythical" },
+  { name:"Kitsune",  beli:4000000, rarity:"mythical" },
+  { name:"Leopard",  beli:5000000, rarity:"mythical" },
+];
+
+const WIKI = "https://static.wikia.nocookie.net/blox-fruits/images";
+const FRUIT_IMGS = {
+  Rocket:"d/dd/Rocket_Fruit_Icon.png", Spin:"3/3b/Spin_Fruit_Icon.png",
+  Chop:"5/5e/Chop_Fruit_Icon.png", Blade:"e/e2/Blade_Fruit_Icon.png",
+  Spring:"5/58/Spring_Fruit_Icon.png", Bomb:"4/4d/Bomb_Fruit_Icon.png",
+  Smoke:"7/7f/Smoke_Fruit_Icon.png", Spike:"b/b5/Spike_Fruit_Icon.png",
+  Flame:"2/2b/Flame_Fruit_Icon.png", Ice:"4/4e/Ice_Fruit_Icon.png",
+  Sand:"4/4f/Sand_Fruit_Icon.png", Dark:"f/f6/Dark_Fruit_Icon.png",
+  Eagle:"4/4b/Eagle_Fruit_Icon.png", Diamond:"c/c3/Diamond_Fruit_Icon.png",
+  Light:"b/b7/Light_Fruit_Icon.png", Love:"2/27/Love_Fruit_Icon.png",
+  Rubber:"b/b4/Rubber_Fruit_Icon.png", Magma:"8/8e/Magma_Fruit_Icon.png",
+  Ghost:"e/e3/Ghost_Fruit_Icon.png", Quake:"f/f8/Quake_Fruit_Icon.png",
+  Buddha:"2/2a/Buddha_Fruit_Icon.png", Portal:"5/5c/Portal_Fruit_Icon.png",
+  Spider:"8/8f/Spider_Fruit_Icon.png", Sound:"9/9b/Sound_Fruit_Icon.png",
+  Phoenix:"0/06/Phoenix_Fruit_Icon.png", Rumble:"1/1d/Rumble_Fruit_Icon.png",
+  Paw:"a/a2/Paw_Fruit_Icon.png", Blizzard:"3/3d/Blizzard_Fruit_Icon.png",
+  Gravity:"b/bf/Gravity_Fruit_Icon.png", Dough:"b/b6/Dough_Fruit_Icon.png",
+  Mammoth:"2/2c/Mammoth_Fruit_Icon.png", Shadow:"5/5a/Shadow_Fruit_Icon.png",
+  Venom:"9/94/Venom_Fruit_Icon.png", Control:"5/5d/Control_Fruit_Icon.png",
+  Dragon:"6/6a/Dragon_Fruit_Icon.png", Leopard:"e/e4/Leopard_Fruit_Icon.png",
+  Falcon:"4/4b/Eagle_Fruit_Icon.png", Barrier:"c/c3/Diamond_Fruit_Icon.png",
+  Creation:"5/5c/Portal_Fruit_Icon.png",
+};
+
+function getImg(name) {
+  return FRUIT_IMGS[name] ? `${WIKI}/${FRUIT_IMGS[name]}` : "";
+}
+
+function fmtBeli(v) {
+  if (v >= 1_000_000) return (v/1_000_000).toFixed(2) + "M";
+  if (v >= 1_000)     return Math.round(v/1_000) + "K";
+  return v.toString();
+}
+
+// State
+const state = { you: [], them: [] };
+
+// Popule les selects
+function populateSelects() {
+  const opts = FRUITS.map(f =>
+    `<option value="${f.name}">${f.name} — ${fmtBeli(f.beli)} Beli</option>`
+  ).join("");
+  document.getElementById("select-you").innerHTML  = `<option value="">— Choisir un fruit —</option>${opts}`;
+  document.getElementById("select-them").innerHTML = `<option value="">— Choisir un fruit —</option>${opts}`;
+}
+
+function addFruit(side) {
+  const sel   = document.getElementById(`select-${side}`);
+  const name  = sel.value;
+  if (!name) return;
+  const fruit = FRUITS.find(f => f.name === name);
+  if (!fruit) return;
+  state[side].push({ ...fruit });
+  sel.value = "";
+  renderSide(side);
+  updateResult();
+}
+
+function removeFruit(side, idx) {
+  state[side].splice(idx, 1);
+  renderSide(side);
+  updateResult();
+}
+
+function renderSide(side) {
+  const container = document.getElementById(`fruits-${side}`);
+  const total     = state[side].reduce((s, f) => s + f.beli, 0);
+  document.getElementById(`total-${side}`).textContent = fmtBeli(total) + " Beli";
+
+  if (!state[side].length) {
+    container.innerHTML = '<div class="empty-hint">Aucun fruit ajouté</div>';
+    return;
+  }
+
+  container.innerHTML = state[side].map((f, i) => `
+    <div class="added-fruit-row">
+      <img class="added-fruit-img" src="${getImg(f.name)}" alt="${f.name}"
+           onerror="this.style.display='none'" />
+      <span class="added-fruit-name">${f.name}</span>
+      <span class="added-fruit-value">${fmtBeli(f.beli)} Beli</span>
+      <button class="btn-remove" onclick="removeFruit('${side}', ${i})">✕</button>
+    </div>
+  `).join("");
+}
+
+function updateResult() {
+  const panel   = document.getElementById("result-panel");
+  const emoji   = document.getElementById("result-emoji");
+  const label   = document.getElementById("result-label");
+  const detail  = document.getElementById("result-detail");
+  const brkdown = document.getElementById("result-breakdown");
+  const tip     = document.getElementById("result-tip");
+
+  const youVal  = state.you.reduce((s, f) => s + f.beli, 0);
+  const themVal = state.them.reduce((s, f) => s + f.beli, 0);
+
+  if (!state.you.length && !state.them.length) {
+    panel.className = "result-panel empty";
+    emoji.textContent = "⚖️";
+    label.className = "result-label empty";
+    label.textContent = "Ajoute des fruits pour analyser";
+    detail.textContent = "Sélectionne ce que tu donnes et ce que tu reçois";
+    brkdown.style.display = "none";
+    tip.style.display = "none";
+    return;
+  }
+
+  const diff    = themVal - youVal;
+  const pct     = youVal > 0 ? Math.round((diff / youVal) * 100) : 0;
+
+  document.getElementById("bd-you").textContent  = fmtBeli(youVal) + " Beli";
+  document.getElementById("bd-them").textContent = fmtBeli(themVal) + " Beli";
+  document.getElementById("bd-diff").textContent = (diff >= 0 ? "+" : "") + fmtBeli(diff) + " Beli";
+  brkdown.style.display = "flex";
+  tip.style.display = "block";
+
+  if (youVal === 0 || themVal === 0) {
+    panel.className = "result-panel empty";
+    emoji.textContent = "⚖️";
+    label.className = "result-label empty";
+    label.textContent = "Ajoute des fruits des deux côtés";
+    detail.textContent = "Tu dois avoir des fruits dans chaque colonne";
+    tip.style.display = "none";
+    return;
+  }
+
+  if (Math.abs(pct) <= 10) {
+    // Trade équitable
+    panel.className = "result-panel even";
+    emoji.textContent = "🤝";
+    label.className = "result-label even";
+    label.textContent = "Trade Équitable";
+    detail.textContent = `Différence de seulement ${Math.abs(pct)}% — c'est fair !`;
+    tip.textContent = "✅ Ce trade est équilibré. Les deux parties y trouvent leur compte. Tu peux y aller en toute confiance !";
+  } else if (diff > 0) {
+    // Tu gagnes
+    panel.className = "result-panel win";
+    emoji.textContent = "🏆";
+    label.className = "result-label win";
+    label.textContent = `Trade Gagnant +${pct}%`;
+    detail.textContent = `Tu reçois ${fmtBeli(diff)} Beli de plus que ce que tu donnes`;
+    tip.textContent = `🔥 Excellent trade ! Tu fais un bénéfice de ${fmtBeli(Math.abs(diff))} Beli (${Math.abs(pct)}%). N'hésite pas, c'est un W !`;
+  } else {
+    // Tu perds
+    const lossPct = Math.abs(pct);
+    panel.className = "result-panel lose";
+    emoji.textContent = lossPct > 40 ? "💀" : "⚠️";
+    label.className = "result-label lose";
+    label.textContent = `Trade Perdant -${lossPct}%`;
+    detail.textContent = `Tu donnes ${fmtBeli(Math.abs(diff))} Beli de plus que ce que tu reçois`;
+    tip.textContent = lossPct > 40
+      ? `💀 Très mauvais trade ! Tu perds ${fmtBeli(Math.abs(diff))} Beli (${lossPct}%). Refuse ou demande un add !`
+      : `⚠️ Trade légèrement défavorable (${lossPct}%). Essaie de négocier un add ou un meilleur fruit pour équilibrer.`;
+  }
+}
+
+function resetAll() {
+  state.you   = [];
+  state.them  = [];
+  renderSide("you");
+  renderSide("them");
+  updateResult();
+}
+
+populateSelects();
+</script>
+</body>
+</html>
