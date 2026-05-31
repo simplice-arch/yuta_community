@@ -1,10 +1,8 @@
 /* ─────────────────────────────────────────────
    YUTA BLOX COMMUNITY — app.js
+   Stock Normal uniquement
    ───────────────────────────────────────────── */
 
-// Icônes depuis fruityblox (même CDN qu'ils utilisent sur leur site)
-// Format : /fruits/NomFruit.png → hébergé dans notre propre dossier public
-// Si l'image n'existe pas → emoji fallback
 const FRUIT_META = {
   "Rocket":   { rarity: "common",    emoji: "🚀" },
   "Spin":     { rarity: "common",    emoji: "🌀" },
@@ -35,7 +33,6 @@ const FRUIT_META = {
   "Spider":   { rarity: "legendary", emoji: "🕷️" },
   "Sound":    { rarity: "legendary", emoji: "🎵" },
   "Shadow":   { rarity: "legendary", emoji: "🌑" },
-  "Love":     { rarity: "legendary", emoji: "💗" },
   "Phoenix":  { rarity: "mythical",  emoji: "🦅" },
   "Rumble":   { rarity: "mythical",  emoji: "⚡" },
   "Lightning":{ rarity: "mythical",  emoji: "⚡" },
@@ -59,30 +56,17 @@ const FRUIT_META = {
 
 const FALLBACK_STOCK = {
   normal: [
-    { name:"Rocket", beli:5000,   type:"Natural"   },
-    { name:"Spin",   beli:7500,   type:"Natural"   },
-    { name:"Blade",  beli:30000,  type:"Natural"   },
-    { name:"Bomb",   beli:80000,  type:"Natural"   },
-    { name:"Flame",  beli:250000, type:"Elemental" },
-    { name:"Magma",  beli:960000, type:"Elemental" },
-  ],
-  mirage: [
-    { name:"Rocket",   beli:5000,    type:"Natural"   },
-    { name:"Spin",     beli:7500,    type:"Natural"   },
-    { name:"Blade",    beli:30000,   type:"Natural"   },
-    { name:"Spring",   beli:60000,   type:"Natural"   },
-    { name:"Dark",     beli:500000,  type:"Elemental" },
-    { name:"Magma",    beli:960000,  type:"Elemental" },
-    { name:"Creation", beli:1400000, type:"Natural"   },
+    { name:"Spin",  beli:7500,   type:"Natural"   },
+    { name:"Smoke", beli:100000, type:"Elemental" },
+    { name:"Spike", beli:180000, type:"Natural"   },
+    { name:"Ghost", beli:940000, type:"Natural"   },
   ],
 };
 
-let currentTab    = "normal";
-let stockData     = { normal: [], mirage: [] };
+let stockData     = { normal: [] };
 let lastFetchedAt = null;
 const CACHE_TTL   = 5 * 60 * 1000;
 
-/* ─── UTILS ─── */
 function fmtPrice(p) {
   if (!p || p === 0) return "?";
   if (p >= 1_000_000) return (p / 1_000_000).toFixed(1).replace(".0","") + "M Beli";
@@ -98,51 +82,43 @@ function getMeta(name) {
   return FRUIT_META[name] || { rarity:"common", emoji:"🍑" };
 }
 
-/* ─── CARD : emoji seulement, fiable à 100% ─── */
 function buildCard(fruit) {
-  const meta   = getMeta(fruit.name);
-  const rarity = meta.rarity;
-  const emoji  = meta.emoji;
-
+  const meta = getMeta(fruit.name);
   return `
   <div class="fruit-card in-stock">
     <div class="stock-dot in"></div>
     <div class="fruit-img-wrap">
-      <span class="fruit-emoji-big">${emoji}</span>
+      <span class="fruit-emoji-big">${meta.emoji}</span>
     </div>
     <div class="fruit-name">${fruit.name}</div>
-    <span class="rarity-badge ${rarityClass(rarity)}">${rarity}</span>
+    <span class="rarity-badge ${rarityClass(meta.rarity)}">${meta.rarity}</span>
     <div class="type-tag">${fruit.type || ""}</div>
     <div class="fruit-price">🪙 ${fmtPrice(fruit.beli)}</div>
   </div>`;
 }
 
-/* ─── RENDER ─── */
 function renderStock() {
-  const fruits    = stockData[currentTab] || [];
+  const fruits    = stockData.normal || [];
   const container = document.getElementById("stock-container");
   if (!fruits.length) {
     container.innerHTML = `<div class="loading-overlay"><div class="loading-text">Aucun fruit trouvé.</div></div>`;
     return;
   }
-
   const maxPrice = fruits.reduce((m, f) => Math.max(m, f.beli||0), 0);
   const maxFruit = fruits.find(f => f.beli === maxPrice);
   document.getElementById("s-instock").textContent   = fruits.length;
   document.getElementById("s-total").textContent     = Object.keys(FRUIT_META).length;
   document.getElementById("s-expensive").textContent = maxFruit ? fmtPrice(maxPrice) : "—";
 
-  const label = currentTab === "mirage" ? "En Stock (Mirage)" : "En Stock (Normal)";
   container.innerHTML = `
     <div class="section-header">
-      <span class="section-title" style="color:var(--red)">${label}</span>
+      <span class="section-title" style="color:var(--red)">En Stock</span>
       <span class="section-badge">${fruits.length} fruits</span>
       <div class="section-line"></div>
     </div>
     <div class="fruit-grid">${fruits.map(buildCard).join("")}</div>`;
 }
 
-/* ─── LOAD STOCK ─── */
 async function loadStock(force = false) {
   const btn = document.getElementById("btn-refresh");
   if (btn) btn.classList.add("spinning");
@@ -165,7 +141,7 @@ async function loadStock(force = false) {
     const res  = await fetch("/api/stock");
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    if (!data.normal || !data.mirage) throw new Error("Format inattendu");
+    if (!data.normal) throw new Error("Format inattendu");
 
     stockData     = data;
     lastFetchedAt = Date.now();
@@ -183,28 +159,17 @@ async function loadStock(force = false) {
     }
     renderStock();
   }
-
   if (btn) btn.classList.remove("spinning");
 }
 
-/* ─── TABS ─── */
-function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById("tab-normal").className = "tab" + (tab==="normal"?" active":"");
-  document.getElementById("tab-mirage").className = "tab" + (tab==="mirage"?" active":"");
-  updateTimer();
-  renderStock();
-}
-
-/* ─── TIMER ─── */
 function updateTimer() {
-  const slotMs = currentTab === "mirage" ? 2*3_600_000 : 4*3_600_000;
-  const now = Date.now();
+  const slotMs = 4 * 3_600_000;
+  const now  = Date.now();
   const next = Math.ceil(now / slotMs) * slotMs;
   const diff = next - now;
-  const h = Math.floor(diff/3_600_000);
-  const m = Math.floor((diff%3_600_000)/60_000);
-  const s = Math.floor((diff%60_000)/1_000);
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  const s = Math.floor((diff % 60_000) / 1_000);
   document.getElementById("t-h").textContent = String(h).padStart(2,"0");
   document.getElementById("t-m").textContent = String(m).padStart(2,"0");
   document.getElementById("t-s").textContent = String(s).padStart(2,"0");
@@ -213,7 +178,6 @@ function updateTimer() {
     String(nd.getUTCHours()).padStart(2,"0")+":"+String(nd.getUTCMinutes()).padStart(2,"0")+" UTC";
 }
 
-/* ─── AI ─── */
 async function askAI() {
   const inp  = document.getElementById("ai-input");
   const resp = document.getElementById("ai-resp");
@@ -228,7 +192,7 @@ async function askAI() {
       body: JSON.stringify({
         question: q,
         normalStock: stockData.normal.map(f=>f.name).join(", ") || "aucun",
-        mirageStock: stockData.mirage.map(f=>f.name).join(", ") || "aucun",
+        mirageStock: "non disponible",
       }),
     });
     const data = await res.json();
@@ -239,9 +203,8 @@ async function askAI() {
   btn.disabled = false;
 }
 
-/* ─── INIT ─── */
 document.getElementById("ai-input")?.addEventListener("keydown", e => { if (e.key==="Enter") askAI(); });
 setInterval(updateTimer, 1000);
 updateTimer();
 loadStock();
-setInterval(() => loadStock(true), 4*60*1000);
+setInterval(() => loadStock(true), 4 * 60 * 1000);
