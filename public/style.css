@@ -573,3 +573,13 @@ footer {
   background: rgba(245,166,35,.15);
   transform: translateY(-2px);
 }
+
+/* ─── EMOJI FRUIT ICON ─── */
+.fruit-emoji-big {
+  font-size: 44px;
+  display: block;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
+  transition: transform .2s;
+}
+.fruit-card:hover .fruit-emoji-big { transform: scale(1.1); }
