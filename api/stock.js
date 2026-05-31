@@ -63,6 +63,7 @@ async function fetchFromFandom() {
 
   // Mirage optionnel
   const mirageMatch = wikitext.match(/\|Mirage\s*=\s*([^\n\|]+)/i);
+  // Mirage : utilise Normal si pas de champ dédié
   const mirage = mirageMatch
     ? mirageMatch[1].split(",").map(n => n.trim()).filter(n => n).map(makeFruit)
     : [];
