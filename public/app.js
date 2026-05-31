@@ -1,79 +1,79 @@
 /* ─────────────────────────────────────────────
    YUTA BLOX COMMUNITY — app.js
-   Stock Tracker Frontend
    ───────────────────────────────────────────── */
 
-// ─── CDN Fandom pour les vraies icônes des fruits ───
-const WIKI = "https://static.wikia.nocookie.net/blox-fruits/images";
-
+// Icônes depuis fruityblox (même CDN qu'ils utilisent sur leur site)
+// Format : /fruits/NomFruit.png → hébergé dans notre propre dossier public
+// Si l'image n'existe pas → emoji fallback
 const FRUIT_META = {
-  "Rocket":   { img: `${WIKI}/d/dd/Rocket_Fruit_Icon.png`,   rarity: "common"   },
-  "Spin":     { img: `${WIKI}/3/3b/Spin_Fruit_Icon.png`,     rarity: "common"   },
-  "Chop":     { img: `${WIKI}/5/5e/Chop_Fruit_Icon.png`,     rarity: "common"   },
-  "Spring":   { img: `${WIKI}/5/58/Spring_Fruit_Icon.png`,   rarity: "common"   },
-  "Bomb":     { img: `${WIKI}/4/4d/Bomb_Fruit_Icon.png`,     rarity: "uncommon" },
-  "Blade":    { img: `${WIKI}/e/e2/Blade_Fruit_Icon.png`,    rarity: "uncommon" },
-  "Smoke":    { img: `${WIKI}/7/7f/Smoke_Fruit_Icon.png`,    rarity: "uncommon" },
-  "Spike":    { img: `${WIKI}/b/b5/Spike_Fruit_Icon.png`,    rarity: "uncommon" },
-  "Flame":    { img: `${WIKI}/2/2b/Flame_Fruit_Icon.png`,    rarity: "rare"     },
-  "Ice":      { img: `${WIKI}/4/4e/Ice_Fruit_Icon.png`,      rarity: "rare"     },
-  "Sand":     { img: `${WIKI}/4/4f/Sand_Fruit_Icon.png`,     rarity: "rare"     },
-  "Dark":     { img: `${WIKI}/f/f6/Dark_Fruit_Icon.png`,     rarity: "rare"     },
-  "Diamond":  { img: `${WIKI}/c/c3/Diamond_Fruit_Icon.png`,  rarity: "rare"     },
-  "Spider":   { img: `${WIKI}/8/8f/Spider_Fruit_Icon.png`,   rarity: "rare"     },
-  "Rubber":   { img: `${WIKI}/b/b4/Rubber_Fruit_Icon.png`,   rarity: "rare"     },
-  "Eagle":    { img: `${WIKI}/4/4b/Eagle_Fruit_Icon.png`,    rarity: "rare"     },
-  "Magma":    { img: `${WIKI}/8/8e/Magma_Fruit_Icon.png`,    rarity: "legendary"},
-  "Quake":    { img: `${WIKI}/f/f8/Quake_Fruit_Icon.png`,    rarity: "legendary"},
-  "Light":    { img: `${WIKI}/b/b7/Light_Fruit_Icon.png`,    rarity: "legendary"},
-  "Ghost":    { img: `${WIKI}/e/e3/Ghost_Fruit_Icon.png`,    rarity: "legendary"},
-  "Mammoth":  { img: `${WIKI}/2/2c/Mammoth_Fruit_Icon.png`,  rarity: "legendary"},
-  "Sound":    { img: `${WIKI}/9/9b/Sound_Fruit_Icon.png`,    rarity: "legendary"},
-  "Dough":    { img: `${WIKI}/b/b6/Dough_Fruit_Icon.png`,    rarity: "legendary"},
-  "Buddha":   { img: `${WIKI}/2/2a/Buddha_Fruit_Icon.png`,   rarity: "legendary"},
-  "Phoenix":  { img: `${WIKI}/0/06/Phoenix_Fruit_Icon.png`,  rarity: "mythical" },
-  "Rumble":   { img: `${WIKI}/1/1d/Rumble_Fruit_Icon.png`,   rarity: "mythical" },
-  "Paw":      { img: `${WIKI}/a/a2/Paw_Fruit_Icon.png`,      rarity: "mythical" },
-  "Blizzard": { img: `${WIKI}/3/3d/Blizzard_Fruit_Icon.png`, rarity: "mythical" },
-  "Control":  { img: `${WIKI}/5/5d/Control_Fruit_Icon.png`,  rarity: "mythical" },
-  "Dragon":   { img: `${WIKI}/6/6a/Dragon_Fruit_Icon.png`,   rarity: "mythical" },
-  "Venom":    { img: `${WIKI}/9/94/Venom_Fruit_Icon.png`,    rarity: "mythical" },
-  "Leopard":  { img: `${WIKI}/e/e4/Leopard_Fruit_Icon.png`,  rarity: "mythical" },
-  "Shadow":   { img: `${WIKI}/5/5a/Shadow_Fruit_Icon.png`,   rarity: "legendary"},
-  "Gravity":  { img: `${WIKI}/b/bf/Gravity_Fruit_Icon.png`,  rarity: "mythical" },
-  "Love":     { img: `${WIKI}/2/27/Love_Fruit_Icon.png`,     rarity: "legendary"},
-  "Pain":     { img: `${WIKI}/1/1b/Pain_Fruit_Icon.png`,     rarity: "mythical" },
-  "Portal":   { img: `${WIKI}/5/5c/Portal_Fruit_Icon.png`,   rarity: "legendary"},
-  "Kitsune":  { img: `${WIKI}/k/kt/Kitsune_Fruit_Icon.png`,  rarity: "mythical" },
-  "Tiger":    { img: `${WIKI}/t/ti/Tiger_Fruit_Icon.png`,    rarity: "mythical" },
-  "Yeti":     { img: `${WIKI}/y/ye/Yeti_Fruit_Icon.png`,     rarity: "mythical" },
-  "Gas":      { img: `${WIKI}/g/ga/Gas_Fruit_Icon.png`,      rarity: "mythical" },
-  "Spirit":   { img: `${WIKI}/s/sp/Spirit_Fruit_Icon.png`,   rarity: "mythical" },
-  "T-Rex":    { img: `${WIKI}/t/tr/T-Rex_Fruit_Icon.png`,    rarity: "mythical" },
-};
-
-// Fallback emoji si l'image wiki ne charge pas
-const EMOJI_FALLBACK = {
-  common: "🔵", uncommon: "🟣", rare: "🔵", legendary: "🟡", mythical: "🔴"
+  "Rocket":   { rarity: "common",    emoji: "🚀" },
+  "Spin":     { rarity: "common",    emoji: "🌀" },
+  "Chop":     { rarity: "common",    emoji: "🪓" },
+  "Spring":   { rarity: "common",    emoji: "🌿" },
+  "Kilo":     { rarity: "common",    emoji: "⚖️" },
+  "Bomb":     { rarity: "uncommon",  emoji: "💣" },
+  "Smoke":    { rarity: "uncommon",  emoji: "💨" },
+  "Spike":    { rarity: "uncommon",  emoji: "🌵" },
+  "Blade":    { rarity: "uncommon",  emoji: "⚔️" },
+  "Flame":    { rarity: "rare",      emoji: "🔥" },
+  "Falcon":   { rarity: "rare",      emoji: "🦅" },
+  "Ice":      { rarity: "rare",      emoji: "🧊" },
+  "Sand":     { rarity: "rare",      emoji: "⌛" },
+  "Dark":     { rarity: "rare",      emoji: "🌑" },
+  "Eagle":    { rarity: "rare",      emoji: "🦅" },
+  "Diamond":  { rarity: "rare",      emoji: "💎" },
+  "Light":    { rarity: "legendary", emoji: "✨" },
+  "Love":     { rarity: "legendary", emoji: "💗" },
+  "Rubber":   { rarity: "rare",      emoji: "🟡" },
+  "Barrier":  { rarity: "rare",      emoji: "🛡️" },
+  "Magma":    { rarity: "legendary", emoji: "🌋" },
+  "Ghost":    { rarity: "legendary", emoji: "👻" },
+  "Quake":    { rarity: "legendary", emoji: "🌊" },
+  "Buddha":   { rarity: "legendary", emoji: "☯️" },
+  "Portal":   { rarity: "legendary", emoji: "🌀" },
+  "Creation": { rarity: "legendary", emoji: "🎁" },
+  "Spider":   { rarity: "legendary", emoji: "🕷️" },
+  "Sound":    { rarity: "legendary", emoji: "🎵" },
+  "Shadow":   { rarity: "legendary", emoji: "🌑" },
+  "Love":     { rarity: "legendary", emoji: "💗" },
+  "Phoenix":  { rarity: "mythical",  emoji: "🦅" },
+  "Rumble":   { rarity: "mythical",  emoji: "⚡" },
+  "Lightning":{ rarity: "mythical",  emoji: "⚡" },
+  "Tiger":    { rarity: "mythical",  emoji: "🐯" },
+  "Yeti":     { rarity: "mythical",  emoji: "❄️" },
+  "Paw":      { rarity: "mythical",  emoji: "🐾" },
+  "Pain":     { rarity: "mythical",  emoji: "💀" },
+  "Blizzard": { rarity: "mythical",  emoji: "❄️" },
+  "Gravity":  { rarity: "mythical",  emoji: "🪐" },
+  "Mammoth":  { rarity: "mythical",  emoji: "🦣" },
+  "Dough":    { rarity: "mythical",  emoji: "🍩" },
+  "Venom":    { rarity: "mythical",  emoji: "🐍" },
+  "Gas":      { rarity: "mythical",  emoji: "💨" },
+  "Control":  { rarity: "mythical",  emoji: "🎮" },
+  "Dragon":   { rarity: "mythical",  emoji: "🐉" },
+  "Spirit":   { rarity: "mythical",  emoji: "👻" },
+  "Kitsune":  { rarity: "mythical",  emoji: "🦊" },
+  "Leopard":  { rarity: "mythical",  emoji: "🐆" },
+  "T-Rex":    { rarity: "mythical",  emoji: "🦖" },
 };
 
 const FALLBACK_STOCK = {
   normal: [
-    { name: "Rocket", beli: 5000,    type: "Natural"   },
-    { name: "Spin",   beli: 7500,    type: "Natural"   },
-    { name: "Chop",   beli: 30000,   type: "Natural"   },
-    { name: "Bomb",   beli: 80000,   type: "Natural"   },
-    { name: "Flame",  beli: 250000,  type: "Elemental" },
-    { name: "Magma",  beli: 960000,  type: "Elemental" },
+    { name:"Rocket", beli:5000,   type:"Natural"   },
+    { name:"Spin",   beli:7500,   type:"Natural"   },
+    { name:"Blade",  beli:30000,  type:"Natural"   },
+    { name:"Bomb",   beli:80000,  type:"Natural"   },
+    { name:"Flame",  beli:250000, type:"Elemental" },
+    { name:"Magma",  beli:960000, type:"Elemental" },
   ],
   mirage: [
-    { name: "Rocket", beli: 5000,    type: "Natural"   },
-    { name: "Spin",   beli: 7500,    type: "Natural"   },
-    { name: "Chop",   beli: 30000,   type: "Natural"   },
-    { name: "Spring", beli: 60000,   type: "Natural"   },
-    { name: "Dark",   beli: 500000,  type: "Elemental" },
-    { name: "Magma",  beli: 960000,  type: "Elemental" },
-    { name: "Creation", beli: 1400000, type: "Natural" },
+    { name:"Rocket",   beli:5000,    type:"Natural"   },
+    { name:"Spin",     beli:7500,    type:"Natural"   },
+    { name:"Blade",    beli:30000,   type:"Natural"   },
+    { name:"Spring",   beli:60000,   type:"Natural"   },
+    { name:"Dark",     beli:500000,  type:"Elemental" },
+    { name:"Magma",    beli:960000,  type:"Elemental" },
+    { name:"Creation", beli:1400000, type:"Natural"   },
   ],
 };
 
@@ -85,58 +85,32 @@ const CACHE_TTL   = 5 * 60 * 1000;
 /* ─── UTILS ─── */
 function fmtPrice(p) {
   if (!p || p === 0) return "?";
-  if (p >= 1_000_000) return (p / 1_000_000).toFixed(1).replace('.0', '') + "M Beli";
-  if (p >= 1_000)     return (p / 1_000).toFixed(p % 1000 === 0 ? 0 : 1) + "K Beli"; // Correction ici : affiche bien 7.5K
+  if (p >= 1_000_000) return (p / 1_000_000).toFixed(1).replace(".0","") + "M Beli";
+  if (p >= 1_000)     return Math.round(p / 1_000) + "K Beli";
   return p + " Beli";
 }
 
 function rarityClass(r) {
-  return { mythical:"r-mythical", legendary:"r-legendary",
-           rare:"r-rare", uncommon:"r-uncommon", common:"r-common" }[r] || "r-common";
+  return {mythical:"r-mythical",legendary:"r-legendary",rare:"r-rare",uncommon:"r-uncommon",common:"r-common"}[r]||"r-common";
 }
 
-function normalizeFruitName(name) {
-  if (!name) return "";
-  // Harmonise le nom de "Blade" vers "Chop" pour assurer la correspondance avec FRUIT_META
-  let n = name.trim();
-  if (n.toLowerCase() === "blade") return "Chop";
-  
-  // Remet la première lettre en majuscule au cas où (ex: "magma" -> "Magma")
-  return n.charAt(0).toUpperCase() + n.slice(1);
+function getMeta(name) {
+  return FRUIT_META[name] || { rarity:"common", emoji:"🍑" };
 }
 
-function getFruitImg(name) {
-  const exactName = normalizeFruitName(name);
-  const meta = FRUIT_META[exactName];
-  if (meta) return meta.img;
-  return `${WIKI}/${exactName}_Fruit_Icon.png`;
-}
-
-function getFruitRarity(name) {
-  const exactName = normalizeFruitName(name);
-  return FRUIT_META[exactName]?.rarity || "common";
-}
-
-/* ─── CARD BUILDER avec vraie image ─── */
+/* ─── CARD : emoji seulement, fiable à 100% ─── */
 function buildCard(fruit) {
-  const exactName = normalizeFruitName(fruit.name);
-  const rarity = getFruitRarity(exactName);
-  const imgUrl = getFruitImg(exactName);
+  const meta   = getMeta(fruit.name);
+  const rarity = meta.rarity;
+  const emoji  = meta.emoji;
 
   return `
   <div class="fruit-card in-stock">
     <div class="stock-dot in"></div>
     <div class="fruit-img-wrap">
-      <img
-        class="fruit-img"
-        src="${imgUrl}"
-        alt="${exactName}"
-        loading="lazy"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='block'"
-      />
-      <span class="fruit-emoji-fallback" style="display:none">${EMOJI_FALLBACK[rarity] || "🍑"}</span>
+      <span class="fruit-emoji-big">${emoji}</span>
     </div>
-    <div class="fruit-name">${exactName}</div>
+    <div class="fruit-name">${fruit.name}</div>
     <span class="rarity-badge ${rarityClass(rarity)}">${rarity}</span>
     <div class="type-tag">${fruit.type || ""}</div>
     <div class="fruit-price">🪙 ${fmtPrice(fruit.beli)}</div>
@@ -147,18 +121,13 @@ function buildCard(fruit) {
 function renderStock() {
   const fruits    = stockData[currentTab] || [];
   const container = document.getElementById("stock-container");
-
   if (!fruits.length) {
-    container.innerHTML = `
-      <div class="loading-overlay">
-        <div class="loading-text">Aucun fruit trouvé pour ce stock.</div>
-      </div>`;
+    container.innerHTML = `<div class="loading-overlay"><div class="loading-text">Aucun fruit trouvé.</div></div>`;
     return;
   }
 
-  const maxPrice = fruits.reduce((m, f) => Math.max(m, f.beli || 0), 0);
+  const maxPrice = fruits.reduce((m, f) => Math.max(m, f.beli||0), 0);
   const maxFruit = fruits.find(f => f.beli === maxPrice);
-
   document.getElementById("s-instock").textContent   = fruits.length;
   document.getElementById("s-total").textContent     = Object.keys(FRUIT_META).length;
   document.getElementById("s-expensive").textContent = maxFruit ? fmtPrice(maxPrice) : "—";
@@ -177,7 +146,8 @@ function renderStock() {
 async function loadStock(force = false) {
   const btn = document.getElementById("btn-refresh");
   if (btn) btn.classList.add("spinning");
-  document.getElementById("error-msg").style.display = "none";
+  const errEl = document.getElementById("error-msg");
+  if (errEl) errEl.style.display = "none";
 
   if (!force && lastFetchedAt && Date.now() - lastFetchedAt < CACHE_TTL) {
     renderStock();
@@ -185,14 +155,11 @@ async function loadStock(force = false) {
     return;
   }
 
-  const container = document.getElementById("stock-container");
-  if (container) {
-    container.innerHTML = `
-      <div class="loading-overlay">
-        <div class="spinner-ring"></div>
-        <div class="loading-text">Récupération du stock live...</div>
-      </div>`;
-  }
+  document.getElementById("stock-container").innerHTML = `
+    <div class="loading-overlay">
+      <div class="spinner-ring"></div>
+      <div class="loading-text">Récupération du stock live...</div>
+    </div>`;
 
   try {
     const res  = await fetch("/api/stock");
@@ -202,22 +169,17 @@ async function loadStock(force = false) {
 
     stockData     = data;
     lastFetchedAt = Date.now();
-
-    document.getElementById("s-source").textContent    = "LIVE";
-    document.getElementById("last-updated").textContent =
-      "Mise à jour : " + new Date().toLocaleTimeString("fr-FR");
-
+    document.getElementById("s-source").textContent     = "LIVE";
+    document.getElementById("last-updated").textContent = "Mise à jour : " + new Date().toLocaleTimeString("fr-FR");
     renderStock();
   } catch (err) {
     console.error("[Stock] Erreur:", err);
-    showError("⚠️ Stock live indisponible. Affichage du dernier stock connu.");
-
+    if (errEl) { errEl.style.display = "block"; errEl.textContent = "⚠️ Stock live indisponible. Affichage du cache."; }
     if (!stockData.normal.length) {
       stockData     = FALLBACK_STOCK;
       lastFetchedAt = Date.now();
-      document.getElementById("s-source").textContent    = "CACHE";
-      document.getElementById("last-updated").textContent =
-        "Cache : " + new Date().toLocaleTimeString("fr-FR");
+      document.getElementById("s-source").textContent     = "CACHE";
+      document.getElementById("last-updated").textContent = "Cache : " + new Date().toLocaleTimeString("fr-FR");
     }
     renderStock();
   }
@@ -228,81 +190,58 @@ async function loadStock(force = false) {
 /* ─── TABS ─── */
 function switchTab(tab) {
   currentTab = tab;
-  document.getElementById("tab-normal").className = "tab" + (tab === "normal" ? " active" : "");
-  document.getElementById("tab-mirage").className = "tab" + (tab === "mirage" ? " active" : "");
+  document.getElementById("tab-normal").className = "tab" + (tab==="normal"?" active":"");
+  document.getElementById("tab-mirage").className = "tab" + (tab==="mirage"?" active":"");
   updateTimer();
   renderStock();
 }
 
 /* ─── TIMER ─── */
 function updateTimer() {
-  const slotMs = currentTab === "mirage" ? 2 * 3_600_000 : 4 * 3_600_000;
-  const now    = Date.now();
-  const next   = Math.ceil(now / slotMs) * slotMs;
-  const diff   = next - now;
-
-  const h = Math.floor(diff / 3_600_000);
-  const m = Math.floor((diff % 3_600_000) / 60_000);
-  const s = Math.floor((diff % 60_000) / 1_000);
-
-  document.getElementById("t-h").textContent = String(h).padStart(2, "0");
-  document.getElementById("t-m").textContent = String(m).padStart(2, "0");
-  document.getElementById("t-s").textContent = String(s).padStart(2, "0");
-
+  const slotMs = currentTab === "mirage" ? 2*3_600_000 : 4*3_600_000;
+  const now = Date.now();
+  const next = Math.ceil(now / slotMs) * slotMs;
+  const diff = next - now;
+  const h = Math.floor(diff/3_600_000);
+  const m = Math.floor((diff%3_600_000)/60_000);
+  const s = Math.floor((diff%60_000)/1_000);
+  document.getElementById("t-h").textContent = String(h).padStart(2,"0");
+  document.getElementById("t-m").textContent = String(m).padStart(2,"0");
+  document.getElementById("t-s").textContent = String(s).padStart(2,"0");
   const nd = new Date(next);
   document.getElementById("next-time").textContent =
-    String(nd.getUTCHours()).padStart(2, "0") + ":" +
-    String(nd.getUTCMinutes()).padStart(2, "0") + " UTC";
+    String(nd.getUTCHours()).padStart(2,"0")+":"+String(nd.getUTCMinutes()).padStart(2,"0")+" UTC";
 }
 
-/* ─── AI ASSISTANT ─── */
+/* ─── AI ─── */
 async function askAI() {
   const inp  = document.getElementById("ai-input");
   const resp = document.getElementById("ai-resp");
   const btn  = document.getElementById("btn-ask");
   const q    = inp.value.trim();
   if (!q) return;
-
-  btn.disabled   = true;
-  resp.innerHTML = '<span class="ai-thinking">Réflexion en cours...</span><span class="ai-cursor"></span>';
-
+  btn.disabled = true;
+  resp.innerHTML = '<span class="ai-thinking">Réflexion...</span><span class="ai-cursor"></span>';
   try {
-    const res  = await fetch("/api/ask", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({
-        question:    q,
-        normalStock: stockData.normal.map(f => f.name).join(", ") || "aucun",
-        mirageStock: stockData.mirage.map(f => f.name).join(", ") || "aucun",
+    const res = await fetch("/api/ask", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        question: q,
+        normalStock: stockData.normal.map(f=>f.name).join(", ") || "aucun",
+        mirageStock: stockData.mirage.map(f=>f.name).join(", ") || "aucun",
       }),
     });
-    if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     resp.textContent = data.answer || "Pas de réponse.";
   } catch {
-    resp.innerHTML = '<span class="ai-thinking">Erreur de connexion à l\'assistant.</span>';
+    resp.innerHTML = '<span class="ai-thinking">Erreur de connexion.</span>';
   }
-
   btn.disabled = false;
 }
 
-function showError(msg) {
-  const el = document.getElementById("error-msg");
-  if (el) {
-    el.style.display = "block";
-    el.textContent   = msg;
-  }
-}
-
 /* ─── INIT ─── */
-const aiInput = document.getElementById("ai-input");
-if (aiInput) {
-  aiInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") askAI();
-  });
-}
-
+document.getElementById("ai-input")?.addEventListener("keydown", e => { if (e.key==="Enter") askAI(); });
 setInterval(updateTimer, 1000);
 updateTimer();
 loadStock();
-setInterval(() => loadStock(true), 4 * 60 * 1000);
+setInterval(() => loadStock(true), 4*60*1000);
