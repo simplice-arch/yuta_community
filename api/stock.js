@@ -1,7 +1,6 @@
 /**
  * /api/stock.js — Vercel Serverless Function
- * Source : Fandom Wiki API -> Fallback
- * 100% GRATUIT
+ * Source : Fandom Wiki API — format |Current = Fruit1, Fruit2, ...
  */
 export const config = { runtime: "edge" };
 
@@ -34,17 +33,14 @@ const TYPE_MAP = {
 };
 
 function makeFruit(name) {
-  return {
-    name,
-    beli: BELI_PRICES[name] || 0,
-    type: TYPE_MAP[name] || "Natural",
-  };
+  const n = name.trim();
+  return { name: n, beli: BELI_PRICES[n] || 0, type: TYPE_MAP[n] || "Natural" };
 }
 
 async function fetchFromFandom() {
   const url = "https://blox-fruits.fandom.com/api.php?action=parse&page=Blox_Fruits_%22Stock%22&prop=wikitext&format=json&origin=*";
   const res = await fetch(url, {
-    headers: { "Accept": "application/json", "User-Agent": "YutaBloxTracker/2.0" },
+    headers: { "Accept": "application/json", "User-Agent": "YutaBloxTracker/3.0" },
     signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error("Fandom HTTP " + res.status);
@@ -52,36 +48,37 @@ async function fetchFromFandom() {
   const wikitext = json?.parse?.wikitext?.["*"] || "";
   if (!wikitext) throw new Error("Wikitext vide");
 
-  const normal = [];
-  const mirage = [];
-  let section = "normal";
-  const lines = wikitext.split("\n");
+  // Format réel : |Current = Spin, Smoke, Spike, Ghost
+  const currentMatch = wikitext.match(/\|Current\s*=\s*([^\n\|]+)/i);
+  if (!currentMatch) throw new Error("Champ |Current introuvable");
 
-  for (const line of lines) {
-    if (/mirage/i.test(line)) section = "mirage";
-    if (!/\|\|\s*Yes\b/i.test(line) && !/\|\s*Yes\s*\|/i.test(line)) continue;
-    const m = line.match(/\[\[([A-Za-z\-\s]+?)(?:\|[^\]]*)?\]\]/);
-    if (!m) continue;
-    const name = m[1].trim();
-    if (!BELI_PRICES[name]) continue;
-    const fruit = makeFruit(name);
-    if (section === "normal" && !normal.some(f => f.name === name)) normal.push(fruit);
-    else if (section === "mirage" && !mirage.some(f => f.name === name)) mirage.push(fruit);
-  }
+  const names = currentMatch[1]
+    .split(",")
+    .map(n => n.trim())
+    .filter(n => n && n.length > 1);
 
-  if (normal.length === 0) throw new Error("Aucun fruit parsé");
+  if (names.length === 0) throw new Error("Aucun fruit dans |Current");
+
+  const normal = names.map(makeFruit);
+
+  // Mirage optionnel
+  const mirageMatch = wikitext.match(/\|Mirage\s*=\s*([^\n\|]+)/i);
+  const mirage = mirageMatch
+    ? mirageMatch[1].split(",").map(n => n.trim()).filter(n => n).map(makeFruit)
+    : [];
+
+  console.log("[Fandom] Current:", names.join(", "));
   return { normal, mirage };
 }
 
 const FALLBACK = {
-  normal: ["Rocket","Spin","Blade","Bomb","Flame","Magma"].map(makeFruit),
-  mirage: ["Rocket","Spin","Blade","Spring","Dark","Magma","Creation"].map(makeFruit),
+  normal: ["Spin","Smoke","Spike","Ghost"].map(makeFruit),
+  mirage: [],
 };
 
 export default async function handler(req) {
   try {
     const data = await fetchFromFandom();
-    console.log("[/api/stock] ✅ Fandom OK:", data.normal.map(f=>f.name).join(", "));
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
@@ -92,7 +89,7 @@ export default async function handler(req) {
       },
     });
   } catch (err) {
-    console.error("[/api/stock] ❌ Erreur:", err.message, "→ fallback");
+    console.error("[/api/stock] Erreur:", err.message);
     return new Response(JSON.stringify(FALLBACK), {
       status: 200,
       headers: {
