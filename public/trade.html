@@ -19,8 +19,8 @@
     }
 
     .trade-side {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
+      background: var(--card);
+      border: 1px solid var(--borderS);
       border-radius: 16px;
       overflow: hidden;
     }
@@ -31,7 +31,7 @@
     .trade-side-header {
       padding: 14px 20px;
       display: flex; align-items: center; gap: 10px;
-      border-bottom: 1px solid var(--border-card);
+      border-bottom: 1px solid var(--borderS);
     }
     .trade-side.you  .trade-side-header { background: rgba(232,0,29,.06); }
     .trade-side.them .trade-side-header { background: rgba(0,212,255,.04); }
@@ -59,7 +59,7 @@
     .fruit-select {
       flex: 1;
       background: var(--bg-card2);
-      border: 1px solid var(--border-card);
+      border: 1px solid var(--borderS);
       border-radius: 8px;
       padding: 9px 12px;
       color: var(--text);
@@ -88,7 +88,7 @@
     .added-fruit-row {
       display: flex; align-items: center; gap: 10px;
       background: var(--bg-card2);
-      border: 1px solid var(--border-card);
+      border: 1px solid var(--borderS);
       border-radius: 10px; padding: 8px 12px;
       animation: fadeIn .2s ease;
     }
@@ -130,16 +130,16 @@
       font-family: 'Bebas Neue', sans-serif;
       font-size: 28px; letter-spacing: 3px;
       color: var(--muted);
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
+      background: var(--card);
+      border: 1px solid var(--borderS);
       border-radius: 50%; width: 52px; height: 52px;
       display: flex; align-items: center; justify-content: center;
     }
 
     /* Résultat */
     .result-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
+      background: var(--card);
+      border: 1px solid var(--borderS);
       border-radius: 16px;
       padding: 28px 32px;
       margin-bottom: 28px;
@@ -150,7 +150,7 @@
     .result-panel.win  { border-color: #22c55e; box-shadow: 0 0 30px rgba(34,197,94,.12); }
     .result-panel.lose { border-color: var(--red); box-shadow: 0 0 30px rgba(232,0,29,.12); }
     .result-panel.even { border-color: var(--gold); box-shadow: 0 0 30px rgba(245,166,35,.1); }
-    .result-panel.empty { border-color: var(--border-card); }
+    .result-panel.empty { border-color: var(--borderS); }
 
     .result-panel::before {
       content: '';
@@ -187,7 +187,7 @@
     .result-tip {
       margin-top: 16px;
       background: rgba(255,255,255,.03);
-      border: 1px solid var(--border-card);
+      border: 1px solid var(--borderS);
       border-radius: 10px; padding: 12px 16px;
       font-size: 13px; color: var(--text); line-height: 1.6;
     }
@@ -195,7 +195,7 @@
     /* Btn reset */
     .btn-reset {
       background: transparent;
-      border: 1px solid var(--border-card);
+      border: 1px solid var(--borderS);
       border-radius: 10px; padding: 10px 22px;
       color: var(--muted); cursor: pointer;
       font-family: 'Bebas Neue', sans-serif;
@@ -237,7 +237,7 @@
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
   </header>
 
-  <!-- nav only on trade page --><i class="fa-solid fa-arrow-left"></i> Retour au stock</a>
+  <a href="/" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Retour au stock</a>
 
   <div class="section-header" style="margin-bottom:24px;">
     <span class="section-title" style="color:var(--red)">Calculateur de Trade</span>
