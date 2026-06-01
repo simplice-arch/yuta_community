@@ -218,3 +218,49 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.warn("[PWA] Erreur SW:", err));
   });
 }
+
+/* ── PARTICULES ANIMÉES ── */
+function createParticles() {
+  const container = document.getElementById("particles");
+  if (!container) return;
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const size = Math.random() * 3 + 1;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*-20}%;
+      opacity:${Math.random()*.5+.1};
+      animation-duration:${Math.random()*12+8}s;
+      animation-delay:${Math.random()*8}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+/* ── ANIMATION CARTES AU CHARGEMENT ── */
+function animateCards() {
+  const cards = document.querySelectorAll(".fruit-card");
+  cards.forEach((card, i) => {
+    card.style.animationDelay = `${i * 0.07}s`;
+  });
+}
+
+/* ── COMPTEUR ANIMÉ POUR LES STATS ── */
+function animateCount(el, target) {
+  const start = 0;
+  const duration = 600;
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * ease);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+createParticles();
