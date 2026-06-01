@@ -153,7 +153,7 @@ header {
 .timer-digits { display:flex; align-items:center; gap:10px; }
 .digit-block { display:flex; flex-direction:column; align-items:center; }
 .digit-num {
-  font-family:'Orbitron',monospace; font-size:46px; font-weight:700; line-height:1;
+  font-family:'Orbitron','Courier New',monospace; font-size:46px; font-weight:700; line-height:1;
   color:var(--text); min-width:70px; text-align:center;
   background:var(--card2); border:1px solid var(--borderS);
   border-radius:12px; padding:6px 10px;
@@ -166,11 +166,11 @@ header {
 }
 @keyframes urgentFlicker { from{opacity:1;} to{opacity:.6;} }
 .digit-unit { font-size:9px; color:var(--muted); letter-spacing:2px; margin-top:5px; text-transform:uppercase; }
-.timer-sep { font-family:'Orbitron',monospace; font-size:38px; color:var(--red); margin-bottom:18px; opacity:.6; }
+.timer-sep { font-family:'Orbitron','Courier New',monospace; font-size:38px; color:var(--red); margin-bottom:18px; opacity:.6; }
 
 .timer-right { text-align:right; }
 .next-restock-label { font-size:10px; letter-spacing:3px; color:var(--muted); font-weight:600; margin-bottom:5px; text-transform:uppercase; }
-.next-restock-time  { font-family:'Orbitron',monospace; font-size:22px; color:var(--red); font-weight:700; }
+.next-restock-time  { font-family:'Orbitron','Courier New',monospace; font-size:22px; color:var(--red); font-weight:700; }
 .restock-note       { font-size:11px; color:var(--muted); margin-top:4px; }
 
 /* ── STATS ── */
@@ -193,7 +193,7 @@ header {
 .stat-card:hover::before { transform:scaleX(1); }
 .stat-card:hover { transform:translateY(-5px); border-color:var(--border); box-shadow:0 8px 24px rgba(0,0,0,.3); }
 .stat-icon { font-size:18px; color:var(--muted); margin-bottom:8px; }
-.stat-val { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; line-height:1; color:var(--text); }
+.stat-val { font-family:'Orbitron','Courier New',monospace; font-size:20px; font-weight:700; line-height:1; color:var(--text); }
 .stat-val.red   { color:var(--red);   }
 .stat-val.gold  { color:var(--gold);  }
 .stat-val.green { color:var(--green); }
@@ -330,7 +330,7 @@ header {
 .r-common    { background:rgba(120,120,130,.1); color:var(--muted); border:1px solid rgba(120,120,130,.15); }
 
 .type-tag  { font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:7px; text-transform:uppercase; }
-.fruit-price { font-family:'Orbitron',monospace; font-size:12px; color:var(--gold); font-weight:700; }
+.fruit-price { font-family:'Orbitron','Courier New',monospace; font-size:12px; color:var(--gold); font-weight:700; }
 
 /* ── AI PANEL ── */
 .ai-panel {
