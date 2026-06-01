@@ -4,53 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YUTA BLOX COMMUNITY — Stock Tracker</title>
-  <meta name="description" content="Tracker de stock live Blox Fruits — Normal & Mirage Dealer. Communauté YUTA BLOX." />
-
-  <!-- Favicon -->
+  <meta name="description" content="Tracker de stock live Blox Fruits — Communauté YUTA BLOX." />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div class="bg-fx"></div>
-<div class="scan"></div>
+<div class="particles" id="particles"></div>
 
 <div class="wrap">
 
-  <!-- HEADER -->
   <header>
     <div class="logo-block">
-      <img src="/logo.jpg" alt="YUTA BLOX COMMUNITY" class="logo-img" />
+      <img src="/logo.jpg" alt="YUTA BLOX" class="logo-img" onerror="this.style.display='none'" />
       <div class="logo-text">
         <span class="logo-main">YUTA BLOX</span>
         <span class="logo-sub">Community Tracker</span>
       </div>
     </div>
-    <div class="live-badge">
-      <div class="live-dot"></div>
-      LIVE
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
     </div>
   </header>
 
-  <!-- HERO BANNER -->
   <div class="hero-banner">
-    <img src="/logo.jpg" alt="YUTA BLOX COMMUNITY" class="hero-img" />
+    <img src="/logo.jpg" alt="YUTA BLOX COMMUNITY" class="hero-img" onerror="this.style.display='none'" />
     <div class="hero-overlay">
       <div class="hero-title">YUTA BLOX COMMUNITY</div>
       <div class="hero-sub">Tracker de Stock Live · Blox Fruits</div>
     </div>
+    <div class="hero-particles"></div>
   </div>
 
-  <!-- TIMER -->
   <div class="timer-section">
-    <div>
-      <div class="timer-label">⏱ Prochain Restock dans</div>
+    <div class="timer-left">
+      <div class="timer-label"><i class="fa-solid fa-clock"></i> Prochain Restock dans</div>
       <div class="timer-digits">
         <div class="digit-block">
           <div class="digit-num" id="t-h">00</div>
@@ -68,56 +61,47 @@
         </div>
       </div>
     </div>
-    <div style="text-align:right;">
+    <div class="timer-right">
       <div class="next-restock-label">Prochain restock</div>
       <div class="next-restock-time" id="next-time">--:-- UTC</div>
       <div class="restock-note">Restock toutes les 4h (UTC)</div>
     </div>
   </div>
 
-
-
-
-
-  </div>
-
-  <!-- STATS -->
   <div class="stats-bar">
-    <div class="stat-card">
+    <div class="stat-card" id="sc-instock">
+      <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="stat-val red" id="s-instock">—</div>
       <div class="stat-lbl">En Stock</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-seedling"></i></div>
       <div class="stat-val" id="s-total">—</div>
       <div class="stat-lbl">Total Fruits</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
       <div class="stat-val gold" id="s-expensive">—</div>
-      <div class="stat-lbl">+ Cher (Beli)</div>
+      <div class="stat-lbl">+ Cher</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-signal"></i></div>
       <div class="stat-val green" id="s-source">LIVE</div>
       <div class="stat-lbl">Source</div>
     </div>
   </div>
 
-  <!-- ACTIONS -->
   <div class="actions-row">
     <button class="btn-refresh" id="btn-refresh" onclick="loadStock(true)">
       <i class="fa-solid fa-rotate-right"></i> Actualiser
     </button>
     <span class="last-updated" id="last-updated">Chargement...</span>
-    <span class="source-tag">
-      via <a href="https://rbxplanet.com/game/blox-fruits/stock" target="_blank" rel="noopener">RBX Planet</a>
-    </span>
+    <a href="/trade.html" class="btn-nav-trade">
+      <i class="fa-solid fa-scale-balanced"></i> Calculateur de Trade
+    </a>
   </div>
 
-  <div class="quick-nav">
-    <a href="/trade.html" class="btn-nav-trade"><i class="fa-solid fa-scale-balanced"></i> Calculateur de Trade</a>
-  </div>
   <div id="error-msg" class="error-msg" style="display:none;"></div>
-
-  <!-- STOCK GRID -->
   <div id="stock-container">
     <div class="loading-overlay">
       <div class="spinner-ring"></div>
@@ -125,30 +109,28 @@
     </div>
   </div>
 
-  <!-- AI PANEL -->
   <div class="ai-panel">
     <div class="ai-header">
       <div class="ai-icon">🤖</div>
       <div>
         <div class="ai-title">Assistant IA Blox Fruits</div>
-        <div class="ai-sub">Posez vos questions sur les fruits, stratégies, prix...</div>
+        <div class="ai-sub">Pose tes questions sur les fruits, stratégies, prix...</div>
       </div>
     </div>
     <div class="ai-body">
       <div class="ai-row">
-        <input class="ai-input" id="ai-input" type="text"
-          placeholder="Ex: Lequel des fruits en stock vaut le plus le coup ?" />
+        <input class="ai-input" id="ai-input" type="text" placeholder="Ex: Lequel des fruits en stock vaut le plus le coup ?" />
         <button class="btn-ask" id="btn-ask" onclick="askAI()">Demander</button>
       </div>
       <div class="ai-resp" id="ai-resp">
-        <span class="ai-thinking">Pose-moi une question sur le stock actuel ou sur Blox Fruits...</span>
+        <span class="ai-thinking">Pose-moi une question sur le stock actuel ou Blox Fruits...</span>
       </div>
     </div>
   </div>
 
   <footer>
     <div class="footer-left">
-      <img src="/logo.jpg" alt="logo" class="footer-logo-img" />
+      <img src="/logo.jpg" alt="logo" class="footer-logo-img" onerror="this.style.display='none'" />
       <span class="footer-logo">YUTA BLOX COMMUNITY</span>
     </div>
     <span class="footer-note">Fan site non officiel — Non affilié à Roblox ou Gamer Robot Inc.</span>
