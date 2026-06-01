@@ -1,7 +1,3 @@
-/**
- * /api/stock.js — Vercel Serverless Function
- * Source : Fandom Wiki API — format |Current = Fruit1, Fruit2, ...
- */
 export const config = { runtime: "edge" };
 
 const BELI_PRICES = {
@@ -33,8 +29,11 @@ const TYPE_MAP = {
 };
 
 function makeFruit(name) {
-  const n = name.trim();
-  return { name: n, beli: BELI_PRICES[n] || 0, type: TYPE_MAP[n] || "Natural" };
+  const n = name.trim().replace(/\s+/g, " ");
+  // Capitalize first letter
+  const clean = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase());
+  return { name: clean, beli: BELI_PRICES[clean] || 0, type: TYPE_MAP[clean] || "Natural" };
 }
 
 async function fetchFromFandom() {
@@ -48,32 +47,22 @@ async function fetchFromFandom() {
   const wikitext = json?.parse?.wikitext?.["*"] || "";
   if (!wikitext) throw new Error("Wikitext vide");
 
-  // Format réel : |Current = Spin, Smoke, Spike, Ghost
-  const currentMatch = wikitext.match(/\|Current\s*=\s*([^\n\|]+)/i);
-  if (!currentMatch) throw new Error("Champ |Current introuvable");
+  // Format : |Current = Spin, Smoke, Spike, Ghost
+  const match = wikitext.match(/\|Current\s*=\s*([^\n|{}]+)/i);
+  if (!match) throw new Error("|Current introuvable dans: " + wikitext.slice(0,200));
 
-  const names = currentMatch[1]
-    .split(",")
-    .map(n => n.trim())
-    .filter(n => n && n.length > 1);
-
-  if (names.length === 0) throw new Error("Aucun fruit dans |Current");
+  const names = match[1].split(",").map(n => n.trim()).filter(n => n.length > 0);
+  if (names.length === 0) throw new Error("Aucun fruit parsé");
 
   const normal = names.map(makeFruit);
-
-  // Mirage optionnel
-  const mirageMatch = wikitext.match(/\|Mirage\s*=\s*([^\n\|]+)/i);
-  // Mirage : utilise Normal si pas de champ dédié
-  const mirage = mirageMatch
-    ? mirageMatch[1].split(",").map(n => n.trim()).filter(n => n).map(makeFruit)
-    : [];
-
-  console.log("[Fandom] Current:", names.join(", "));
-  return { normal, mirage };
+  console.log("[Fandom] Stock:", normal.map(f=>f.name).join(", "));
+  return { normal, mirage: [] };
 }
 
 const FALLBACK = {
-  normal: ["Spin","Smoke","Spike","Ghost"].map(makeFruit),
+  normal: ["Spin","Smoke","Spike","Ghost"].map(n => ({
+    name:n, beli:BELI_PRICES[n]||0, type:TYPE_MAP[n]||"Natural"
+  })),
   mirage: [],
 };
 
