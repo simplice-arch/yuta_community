@@ -163,6 +163,7 @@ async function loadStock(force = false) {
 }
 
 function updateTimer() {
+  const isUrgent = diff < 10 * 60_000;
   const slotMs = 4 * 3_600_000;
   const now  = Date.now();
   const next = Math.ceil(now / slotMs) * slotMs;
@@ -208,3 +209,12 @@ setInterval(updateTimer, 1000);
 updateTimer();
 loadStock();
 setInterval(() => loadStock(true), 4 * 60 * 1000);
+
+/* ─── PWA Service Worker ─── */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("[PWA] Service Worker enregistré"))
+      .catch(err => console.warn("[PWA] Erreur SW:", err));
+  });
+}
