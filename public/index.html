@@ -27,9 +27,7 @@
         <span class="logo-sub">Community Tracker</span>
       </div>
     </div>
-    <div class="header-right">
-      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
   </header>
 
   <div class="hero-banner">
@@ -38,38 +36,33 @@
       <div class="hero-title">YUTA BLOX COMMUNITY</div>
       <div class="hero-sub">Tracker de Stock Live · Blox Fruits</div>
     </div>
-    <div class="hero-particles"></div>
   </div>
 
   <div class="timer-section">
     <div class="timer-left">
       <div class="timer-label"><i class="fa-solid fa-clock"></i> Prochain Restock dans</div>
       <div class="timer-digits">
-        <div class="digit-block">
-          <div class="digit-num" id="t-h">00</div>
-          <div class="digit-unit">Heures</div>
-        </div>
+        <div class="digit-block"><div class="digit-num" id="t-h">00</div><div class="digit-unit">Heures</div></div>
         <div class="timer-sep">:</div>
-        <div class="digit-block">
-          <div class="digit-num" id="t-m">00</div>
-          <div class="digit-unit">Minutes</div>
-        </div>
+        <div class="digit-block"><div class="digit-num" id="t-m">00</div><div class="digit-unit">Minutes</div></div>
         <div class="timer-sep">:</div>
-        <div class="digit-block">
-          <div class="digit-num" id="t-s">00</div>
-          <div class="digit-unit">Secondes</div>
-        </div>
+        <div class="digit-block"><div class="digit-num" id="t-s">00</div><div class="digit-unit">Secondes</div></div>
       </div>
     </div>
     <div class="timer-right">
       <div class="next-restock-label">Prochain restock</div>
       <div class="next-restock-time" id="next-time">--:-- UTC</div>
-      <div class="restock-note">Restock toutes les 4h (UTC)</div>
+      <div class="restock-note">Normal: /4h · Mirage: /2h (UTC)</div>
     </div>
   </div>
 
+  <div class="tabs">
+    <div class="tab active" id="tab-normal">Stock Normal</div>
+    <div class="tab" id="tab-mirage">Stock Mirage</div>
+  </div>
+
   <div class="stats-bar">
-    <div class="stat-card" id="sc-instock">
+    <div class="stat-card">
       <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
       <div class="stat-val red" id="s-instock">—</div>
       <div class="stat-lbl">En Stock</div>
@@ -102,6 +95,7 @@
   </div>
 
   <div id="error-msg" class="error-msg" style="display:none;"></div>
+
   <div id="stock-container">
     <div class="loading-overlay">
       <div class="spinner-ring"></div>
